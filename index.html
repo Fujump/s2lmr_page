@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>S²LMR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one centered 60rem column shared by text, figures and tables (equal margins on both sides);
+   centered title block on top, sticky section bar. */
+:root {
+  --bg: #f6f8f9;
+  --surface: #ffffff;
+  --ink: #132330;
+  --muted: #56697a;
+  --line: #d6dfe5;
+  --accent: #0b6e7d;
+  --accent-soft: #dcefef;
+  --pending: #8a6a1f;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --wide: 60rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f171d; --surface: #16212a; --ink: #e3ebf0; --muted: #98abb9; --line: #2a3a46;
+    --accent: #4fc0cc; --accent-soft: #173a40; --pending: #e2c27a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f171d; --surface: #16212a; --ink: #e3ebf0; --muted: #98abb9; --line: #2a3a46;
+  --accent: #4fc0cc; --accent-soft: #173a40; --pending: #e2c27a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h2 { font-size: 2rem; font-weight: 600; letter-spacing: -0.01em; }
+h3 { font-size: 1.25rem; font-weight: 600; }
+p { margin: 0; }
+.nw { white-space: nowrap; }
+.wide { max-width: var(--wide); margin-inline: auto; }
+.lead { font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; color: var(--accent); margin-top: -0.5rem; }
+.label { font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+nav.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  border-bottom: 1px solid var(--line); margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding-inline: max(16px, env(safe-area-inset-left, 0px));
+}
+nav.bar .inner { max-width: var(--wide); margin-inline: auto; display: flex; gap: 1.25rem; align-items: center;
+  overflow-x: auto; padding-block: 0.6rem; font-size: 0.9rem; white-space: nowrap; scrollbar-width: none; }
+nav.bar .brand { font-family: var(--font-display); font-weight: 700; color: var(--ink); text-decoration: none; margin-right: auto; }
+nav.bar a:not(.brand) { color: var(--muted); text-decoration: none; }
+nav.bar a:not(.brand):hover, nav.bar a.active { color: var(--accent); }
+
+/* title block */
+header.hero { padding-block: 4rem 3rem; display: grid; gap: 1.1rem; justify-items: center; text-align: center; }
+.hero h1 { font-size: clamp(2.8rem, 8vw, 4.4rem); font-weight: 700; letter-spacing: -0.02em; }
+.hero h1 sup { font-size: 0.5em; vertical-align: 0.85em; }
+.hero .subtitle { font-family: var(--font-display); font-size: clamp(1.15rem, 3vw, 1.55rem); font-weight: 500; max-width: 56rem; text-wrap: balance; }
+.hero .tagline { color: var(--muted); max-width: 44rem; text-wrap: balance; }
+.authors { display: grid; gap: 0.2rem; }
+.authors .names { font-size: 1.05rem; font-weight: 500; }
+.authors .aff { color: var(--muted); font-size: 0.92rem; }
+.buttons { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+.btn { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 0.95rem; border-radius: 999px;
+  border: 1px solid var(--ink); color: var(--ink); text-decoration: none; font-size: 0.92rem; font-weight: 500; background: var(--surface); }
+a.btn:hover { background: var(--ink); color: var(--bg); }
+.btn.soon { border-style: dashed; border-color: var(--line); color: var(--muted); cursor: default; }
+.btn svg { width: 1em; height: 1em; flex: none; }
+
+section { padding-block: 3.25rem; border-top: 1px solid var(--line); scroll-margin-top: 3.2rem; }
+section > .wide { display: grid; gap: 1.2rem; }
+
+/* TL;DR */
+.tldr { display: grid; gap: 0.6rem; }
+.tldr { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 1.5rem 1.75rem; }
+.tldr p { font-size: 1.1rem; }
+#tldr { border-top: none; padding-top: 0; }
+.tldr h2 { font-size: 1.5rem; }
+@media (max-width: 600px) { .tldr { padding: 1.1rem 1.15rem; } .tldr p { font-size: 1rem; } }
+
+/* issues: subgrid keeps titles, figures and text aligned across the three cards */
+.issues { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); column-gap: 1.5rem; margin-top: 0.4rem; }
+.issue { display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: 0.6rem; border-top: 3px solid var(--accent); padding-top: 0.8rem; }
+.issue h3 { font-size: 1.08rem; }
+.issue p { font-size: 0.95rem; color: var(--muted); }
+.issue .fix { color: var(--ink); }
+.issue .fix b { font-weight: 600; }
+@media (max-width: 800px) {
+  .issues { grid-template-columns: 1fr; grid-template-rows: none; row-gap: 2rem; }
+  .issue { grid-row: auto; grid-template-rows: none; }
+}
+
+figure { margin: 0; display: grid; gap: 0.5rem; align-content: start; }
+.mat { background: #ffffff; border: 1px solid var(--line); border-radius: 6px; padding: 0.75rem; overflow-x: auto; }
+.mat img { display: block; width: 100%; min-width: 34rem; height: auto; }
+.mat.fit { padding: 0.4rem; display: flex; align-items: center; justify-content: center; }
+.mat.fit img, .mat.fit svg { display: block; width: 100%; min-width: 0; height: auto; aspect-ratio: var(--ar, 1.406); object-fit: contain; }
+figcaption { font-size: 0.88rem; color: var(--muted); }
+figcaption b { color: var(--ink); font-weight: 600; }
+.row { display: grid; gap: 1.25rem; align-items: start; }
+.row.n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.row.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 800px) { .row.n2, .row.n3 { grid-template-columns: 1fr; } }
+
+/* method steps */
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; list-style: none; padding: 0; margin: 0; counter-reset: step; }
+.steps li { counter-increment: step; display: grid; gap: 0.35rem; align-content: start; }
+.steps li::before { content: counter(step); font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 999px; width: 1.7rem; height: 1.7rem; display: grid; place-items: center; }
+.steps h3 { font-size: 1.05rem; }
+.steps p { font-size: 0.95rem; color: var(--muted); }
+@media (max-width: 800px) { .steps { grid-template-columns: 1fr; } }
+.eq { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0.9rem 1rem; overflow-x: auto; }
+.eq math { font-size: 1.12em; }
+
+/* tables */
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+th, td { padding: 0.45rem 0.65rem; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-family: var(--font-mono); font-weight: 500; font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+thead tr.super th { text-align: center; border-bottom: none; padding-bottom: 0; }
+tbody tr:last-child td { border-bottom: none; }
+tr.ours td { background: var(--accent-soft); font-weight: 600; }
+td.group { font-family: var(--font-mono); font-size: 0.74rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; background: var(--bg); }
+td.m { text-align: left; }
+td.len { font-family: var(--font-mono); font-weight: 500; color: var(--muted); }
+.mark { font-family: var(--font-mono); font-size: 0.8em; color: var(--muted); margin-right: 0.25rem; }
+.note { font-size: 0.86rem; color: var(--muted); }
+
+/* tabs */
+.block { display: grid; gap: 0.9rem; }
+[data-tabs] + [data-tabs] { margin-top: 1.75rem; }
+.tabs { display: flex; flex-wrap: wrap; gap: 0.3rem; border-bottom: 1px solid var(--line); }
+.tabs button { font: inherit; font-size: 0.92rem; background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--muted); padding: 0.5rem 0.75rem; cursor: pointer; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.panel { display: grid; gap: 0.9rem; padding-top: 0.5rem; }
+.takeaway { font-weight: 600; }
+
+pre.bib { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 1rem; overflow-x: auto;
+  font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5; margin: 0; }
+.bibhead { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.copy { font: inherit; font-size: 0.85rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
+footer { border-top: 1px solid var(--line); padding-block: 2rem 3rem; font-size: 0.85rem; color: var(--muted); }
+footer .wide { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+</style>
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+
+<nav class="bar" aria-label="Sections">
+  <div class="inner">
+    <a class="brand" href="#top">S²LMR</a>
+    <a href="#introduction">Introduction</a>
+    <a href="#method">Method</a>
+    <a href="#results">Results</a>
+    <a href="#citation">Citation</a>
+  </div>
+</nav>
+
+<main id="top">
+  <header class="hero wide">
+    <h1>S<sup>2</sup>LMR</h1>
+    <p class="subtitle">Supervised Sequential <span class="nw">Long-Context</span> <span class="nw">Multi-Step</span> Retriever</p>
+    <p class="tagline">Align supervised training with inference, and a plain <span class="nw">bi-encoder</span> matches <span class="nw">RL-trained</span> retrieval from <span class="nw">4K to 10M</span> tokens.</p>
+    <div class="authors">
+      <div class="names">Qiang Hu, Kaiyi Ji</div>
+      <div class="aff">University at Buffalo</div>
+    </div>
+    <div class="buttons">
+      <span class="btn soon"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" d="M3.5 1.5h6l3 3v10h-9zM9.5 1.5v3h3"/></svg>Paper · coming soon</span>
+      <span class="btn soon"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" d="M5 4 1.5 8 5 12M11 4l3.5 4L11 12"/></svg>Code · coming soon</span>
+      <span class="btn soon"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.5"/></svg>Checkpoints · coming soon</span>
+      <a class="btn" href="#citation"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M3 3h4v4H5v2H3zm6 0h4v4h-2v2H9z"/></svg>BibTeX</a>
+    </div>
+  </header>
+
+  <section id="tldr">
+    <div class="wide tldr">
+      <h2>TL;DR</h2>
+      <p>Supervised retrievers do not fall behind RL-trained ones on long-context multi-step retrieval because supervision is too weak; they fall behind because <strong>training does not match inference</strong>. S²LMR fixes three such mismatches with one shared bi-encoder and per-hop contrastive supervision. It <strong>matches or outperforms the RL-based Q-RAG</strong> on BabiLong, RULER, HotpotQA and MuSiQue at up to 10M tokens, trains in <strong>2.25 GPU hours</strong> on BabiLong QA3, and stays stable across a wide range of learning rates and batch sizes.</p>
+    </div>
+  </section>
+
+  <section id="introduction">
+    <div class="wide">
+      <h2>Introduction</h2>
+      <p class="lead">Can a simple supervised retriever handle million-token, multi-step retrieval?</p>
+      <p>Strong multi-step retrievers today rely on RL: value networks, target networks and temporal-difference updates. A bi-encoder trained with the standard DPR/MDR recipe, by contrast, reaches only 1.6% Fact EM on BabiLong QA3. We trace this gap to three places where supervised training does not look like inference.</p>
+      <div class="issues">
+        <div class="issue">
+          <span class="label">Issue 1</span>
+          <h3>Training negatives are too easy</h3>
+          <figure>
+            <div class="mat fit"><img src="static/images/issue1_negatives.png" alt="Hop-1 cosine similarity to the query under MDR-style training: in-batch negatives sit far below the gold chunk, while same-context negatives overlap it."></div>
+          </figure>
+          <p>In-batch negatives come from other questions and are easy to separate. The real competitors at test time are chunks of the same context, which overlap the gold chunk.</p>
+          <p class="fix"><b>Fix:</b> contrast the gold chunk against every other chunk of the same context.</p>
+        </div>
+        <div class="issue">
+          <span class="label">Issue 2</span>
+          <h3>Predicted prefixes add noise</h3>
+          <figure>
+            <div class="mat fit"><img src="static/images/issue2_prefixes.png" alt="Hop-1 failure rate versus candidate-pool size: BR-style training rises from 0.4% to 10% at 400K candidates, teacher-forced training stays at or below 3%."></div>
+          </figure>
+          <p>Training later hops on the model’s own, sometimes wrong, picks blurs the supervision. With 400K candidates, hop-1 failure reaches 10%, against at most 3% with gold prefixes.</p>
+          <p class="fix"><b>Fix:</b> condition every hop on the gold prefix (teacher forcing).</p>
+        </div>
+        <div class="issue">
+          <span class="label">Issue 3</span>
+          <h3>Scores ignore where a chunk is</h3>
+          <figure>
+            <div class="mat fit">
+              <svg viewBox="0 0 450 320" role="img" aria-labelledby="i3t">
+                <title id="i3t">Pick success of a fine-tuned position-agnostic bi-encoder on BabiLong QA3: hop 1 34%, hop 2 47%, hop 3 20%, all three hops 8.5%.</title>
+                <g font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="15" fill="#3b4a57">
+                  <g stroke="#e3e8ec" stroke-width="1">
+                    <line x1="60" y1="260" x2="430" y2="260"/><line x1="60" y1="200" x2="430" y2="200"/>
+                    <line x1="60" y1="140" x2="430" y2="140"/><line x1="60" y1="80" x2="430" y2="80"/>
+                  </g>
+                  <text x="52" y="265" text-anchor="end">0%</text><text x="52" y="205" text-anchor="end">20%</text>
+                  <text x="52" y="145" text-anchor="end">40%</text><text x="52" y="85" text-anchor="end">60%</text>
+                  <rect x="80" y="158" width="60" height="102" fill="#4f8fbf"/>
+                  <rect x="170" y="119" width="60" height="141" fill="#4f8fbf"/>
+                  <rect x="260" y="200" width="60" height="60" fill="#4f8fbf"/>
+                  <rect x="350" y="234.5" width="60" height="25.5" fill="#c94a4a"/>
+                  <g text-anchor="middle" font-weight="600" fill="#132330">
+                    <text x="110" y="150">34%</text><text x="200" y="111">47%</text><text x="290" y="192">20%</text><text x="380" y="227">8.5%</text>
+                  </g>
+                  <g text-anchor="middle">
+                    <text x="110" y="284">hop 1</text><text x="200" y="284">hop 2</text><text x="290" y="284">hop 3</text><text x="380" y="284">all 3</text>
+                  </g>
+                  <text x="245" y="40" text-anchor="middle" font-weight="600" fill="#132330">Pick success without positions (QA3)</text>
+                </g>
+              </svg>
+            </div>
+          </figure>
+          <p>When evidence is positionally related, as in a story, a position-agnostic scorer picks the right chunk at only 20–47% of hops; all three hops succeed in 8.5% of examples.</p>
+          <p class="fix"><b>Fix:</b> score with Q-RAG’s chunk-axis positions, computed from the gold prefix during training.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="method">
+    <div class="wide">
+      <h2>Method</h2>
+      <p class="lead">One shared encoder, supervised one hop at a time</p>
+      <figure>
+        <div class="mat"><img src="static/images/overview.png" alt="S²LMR overview: a shared encoder embeds the query state and the cached chunks of a long context; per-hop InfoNCE over all same-context chunks with the gold prefix during training, greedy argmax at inference."></div>
+        <figcaption><b>Overview.</b> Training (blue) supervises each hop with the gold next chunk; inference (orange) appends the highest-scoring chunk and moves to the next hop.</figcaption>
+      </figure>
+      <ol class="steps">
+        <li><h3>Encode the context once</h3><p>Every chunk of the long context is embedded once by the shared encoder and cached for all hops.</p></li>
+        <li><h3>Build the state from gold evidence</h3><p>At hop t, the state s<sub>t</sub> holds the question and the gold chunks of the earlier hops, so no hop is trained on a wrong prefix.</p></li>
+        <li><h3>Contrast against the whole context</h3><p>The gold next chunk is scored against every remaining chunk of the same context, with one InfoNCE loss per hop.</p></li>
+      </ol>
+      <div class="eq">
+        <math display="block"><msub><mi>ℒ</mi><mi>t</mi></msub><mo>=</mo><mo>−</mo><mi>log</mi><mfrac><mrow><mi>exp</mi><mo>(</mo><mi>score</mi><mo>(</mo><msub><mi>s</mi><mi>t</mi></msub><mo>,</mo><msub><mi>c</mi><msubsup><mi>i</mi><mi>t</mi><mo>⋆</mo></msubsup></msub><mo>)</mo><mo>/</mo><mi>τ</mi><mo>)</mo></mrow><mrow><munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><msub><mi>𝒜</mi><mi>t</mi></msub></mrow></munder><mi>exp</mi><mo>(</mo><mi>score</mi><mo>(</mo><msub><mi>s</mi><mi>t</mi></msub><mo>,</mo><msub><mi>c</mi><mi>j</mi></msub><mo>)</mo><mo>/</mo><mi>τ</mi><mo>)</mo></mrow></mfrac><mo>,</mo><mspace width="1.2em"/><msub><mi>ℒ</mi><mrow><msup><mi>S</mi><mn>2</mn></msup><mi>LMR</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>K</mi></mfrac><munderover><mo>∑</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msub><mi>ℒ</mi><mi>t</mi></msub></math>
+      </div>
+      <p>𝒜<sub>t</sub> is every chunk of the context not yet retrieved, so same-context chunks about the same entities are always in the denominator. All K hops get a direct gradient, with no rollouts, value networks or temporal-difference updates. At inference the gold prefix is replaced by the model’s own picks, and retrieval is greedy.</p>
+    </div>
+  </section>
+
+  <section id="results">
+    <div class="wide">
+      <h2>Experimental Results</h2>
+      <p class="lead">From 4K to 10M tokens</p>
+
+      <div class="block" data-tabs>
+        <h3>Main results</h3>
+        <div class="tabs" role="tablist" aria-label="Main results">
+          <button role="tab" id="tab-babilong" aria-controls="p-babilong" aria-selected="true">BabiLong</button>
+          <button role="tab" id="tab-ruler" aria-controls="p-ruler" aria-selected="false">RULER</button>
+          <button role="tab" id="tab-hotpot" aria-controls="p-hotpot" aria-selected="false">HotpotQA</button>
+          <button role="tab" id="tab-musique" aria-controls="p-musique" aria-selected="false">MuSiQue</button>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-babilong" aria-labelledby="tab-babilong">
+          <figure>
+            <div class="mat"><img src="static/images/babilong.png" alt="BabiLong answer accuracy versus context length from 1K to 10M tokens: (a) average over QA1–QA5, (b) QA3."></div>
+            <figcaption><b>BabiLong, 1K to 10M tokens.</b> (a) Average over QA1–QA5. (b) QA3, the hardest task, with three supporting facts per question. Solid lines are fine-tuned methods, dashed lines zero-shot.</figcaption>
+          </figure>
+          <p class="takeaway">S²LMR stays above 95% at 10M tokens and tracks Q-RAG across the full range, while Beam Retriever stays at 0.2–0.3 on QA3.</p>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-ruler" aria-labelledby="tab-ruler" hidden>
+          <div class="tablewrap">
+            <table>
+              <thead>
+                <tr class="super"><th></th><th></th><th colspan="3">Single needle</th><th colspan="3">Multi-key</th><th>MV</th><th>MQ</th><th>NIAH</th><th colspan="2">QA</th></tr>
+                <tr><th>Len</th><th style="text-align:left">Method</th><th>1</th><th>2</th><th>3</th><th>1</th><th>2</th><th>3</th><th></th><th></th><th>Avg</th><th>SH</th><th>MH</th></tr>
+              </thead>
+            <tbody>
+              <tr><td class="len" rowspan="7">4K</td><td class="m"><span class="mark">◦</span>Titans</td><td>98.4</td><td>99.8</td><td>89.4</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>
+              <tr><td><span class="mark">◦</span>Atlas</td><td>99.2</td><td>100</td><td>90.6</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>
+              <tr><td><span class="mark">◦</span>Mamba2-Hybrid</td><td>100</td><td>100</td><td>95.7</td><td>89.5</td><td>95.5</td><td>96</td><td>97.9</td><td>97.6</td><td>96.5</td><td>56.5</td><td>48.8</td></tr>
+              <tr><td><span class="mark">◦</span>LongRoPE2-8B</td><td>100</td><td>100</td><td>99</td><td>100</td><td>100</td><td>97</td><td>99.7</td><td>100</td><td>99.7</td><td>79</td><td>60</td></tr>
+              <tr><td><span class="mark">✓</span>Beam-Retriever</td><td>100</td><td>98</td><td>98</td><td>98</td><td>98</td><td>97</td><td>98</td><td>99</td><td>98.5</td><td>29.0</td><td>39.0</td></tr>
+              <tr><td><span class="mark">✓</span>Q-RAG</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>55</td><td>64</td></tr>
+              <tr class="ours"><td>S²LMR</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>56</td><td>64</td></tr>
+              <tr><td class="len" rowspan="7">16K</td><td class="m"><span class="mark">◦</span>Titans</td><td>96.2</td><td>80.2</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>
+              <tr><td><span class="mark">◦</span>Atlas</td><td>97</td><td>84</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>
+              <tr><td><span class="mark">◦</span>Mamba2-Hybrid</td><td>100</td><td>100</td><td>81.5</td><td>92</td><td>92.2</td><td>83</td><td>89.8</td><td>90.2</td><td>91.1</td><td>48.8</td><td>44</td></tr>
+              <tr><td><span class="mark">◦</span>LongRoPE2-8B</td><td>100</td><td>100</td><td>99</td><td>99</td><td>100</td><td>98</td><td>95</td><td>98.2</td><td>98.8</td><td>69</td><td>58</td></tr>
+              <tr><td><span class="mark">✓</span>Beam-Retriever</td><td>100</td><td>100</td><td>97</td><td>96.5</td><td>96</td><td>95</td><td>80</td><td>98</td><td>95.3</td><td>24.0</td><td>35.0</td></tr>
+              <tr><td><span class="mark">✓</span>Q-RAG</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>53</td><td>60</td></tr>
+              <tr class="ours"><td>S²LMR</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>51</td><td>62</td></tr>
+              <tr><td class="len" rowspan="4">32K</td><td class="m"><span class="mark">◦</span>Mamba2-Hybrid</td><td>100</td><td>100</td><td>96.7</td><td>84</td><td>76.5</td><td>81.5</td><td>84.3</td><td>80.9</td><td>88.0</td><td>41.8</td><td>38.5</td></tr>
+              <tr><td><span class="mark">◦</span>LongRoPE2-8B</td><td>100</td><td>100</td><td>100</td><td>99</td><td>98</td><td>100</td><td>98</td><td>96.2</td><td>98.9</td><td>72</td><td>55</td></tr>
+              <tr><td><span class="mark">✓</span>Q-RAG</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>52</td><td>63</td></tr>
+              <tr class="ours"><td>S²LMR</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>50</td><td>63</td></tr>
+              <tr><td class="len" rowspan="4">128K</td><td class="m"><span class="mark">✓</span>Mamba2-Hybrid</td><td>100</td><td>92</td><td>96</td><td>81</td><td>81</td><td>75</td><td>48.8</td><td>72.5</td><td>80.8</td><td>36</td><td>26</td></tr>
+              <tr><td><span class="mark">◦</span>LongRoPE2-8B</td><td>100</td><td>100</td><td>99</td><td>96</td><td>91</td><td>94</td><td>96.5</td><td>97</td><td>96.7</td><td>56</td><td>50</td></tr>
+              <tr><td><span class="mark">✓</span>Q-RAG</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>50</td><td>61</td></tr>
+              <tr class="ours"><td>S²LMR</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>100</td><td>47</td><td>62</td></tr>
+              <tr><td class="len" rowspan="2">1M</td><td class="m"><span class="mark">✓</span>Q-RAG</td><td>100</td><td>100</td><td>100</td><td>98.5</td><td>99.0</td><td>100</td><td>100</td><td>100</td><td>99.7</td><td>50</td><td>56</td></tr>
+              <tr class="ours"><td>S²LMR</td><td>100</td><td>100</td><td>100</td><td>100</td><td>99.0</td><td>100</td><td>100</td><td>100</td><td>99.9</td><td>46</td><td>59</td></tr>
+            </tbody>
+            </table>
+          </div>
+          <p class="note">◦ reported in the original papers; ✓ reproduced with released code or checkpoints (Mamba2-Hybrid at 128K: NVIDIA’s released 128K-context checkpoint). MV: multi-value; MQ: multi-query; SH / MH: single-hop / multi-hop QA (EM), with 1 (SH) and 3 (MH) retrieval steps as in the released Q-RAG code and a Qwen3-4B reader.</p>
+          <p class="takeaway">Both retrieval methods are near-perfect on every needle task up to 1M tokens. On QA, S²LMR matches or exceeds Q-RAG on multi-hop questions at every length and stays within 4 points on single-hop ones.</p>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-hotpot" aria-labelledby="tab-hotpot" hidden>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Method</th><th>Fact F1</th><th>Fact EM</th><th>Ans F1</th><th>Ans EM</th></tr></thead>
+              <tbody>
+                <tr><td class="group" colspan="5">Fine-tuned</td></tr>
+                <tr><td><span class="mark">✓</span>Q-RAG</td><td>0.92</td><td>0.87</td><td>0.76</td><td>0.59</td></tr>
+                <tr><td><span class="mark">◦</span>Beam-Retriever</td><td>0.97</td><td>0.94</td><td>0.77</td><td>0.61</td></tr>
+                <tr><td><span class="mark">◦</span>Search-R1</td><td>0.81</td><td>0.66</td><td>0.65</td><td>0.52</td></tr>
+                <tr><td><span class="mark">◦</span>RAG-RL</td><td>0.82</td><td>–</td><td>0.69</td><td>–</td></tr>
+                <tr class="ours"><td>S²LMR</td><td>0.95</td><td>0.90</td><td>0.78</td><td>0.62</td></tr>
+                <tr><td class="group" colspan="5">Zero-shot</td></tr>
+                <tr><td><span class="mark">◦</span>Multi-step RAG</td><td>0.73</td><td>0.54</td><td>0.65</td><td>0.50</td></tr>
+                <tr><td><span class="mark">◦</span>GraphReader</td><td>–</td><td>–</td><td>0.46</td><td>0.24</td></tr>
+                <tr><td><span class="mark">◦</span>Single-step RAG</td><td>–</td><td>–</td><td>0.53</td><td>0.39</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="takeaway">The best answer F1 and EM among the compared methods, with only the retriever fine-tuned and a frozen reader.</p>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-musique" aria-labelledby="tab-musique" hidden>
+          <div class="row n2">
+            <div class="block">
+              <div class="tablewrap">
+                <table>
+                  <thead><tr><th>Method</th><th>Fact F1</th><th>Fact EM</th><th>Ans F1</th><th>Ans EM</th></tr></thead>
+                  <tbody>
+                    <tr><td class="group" colspan="5">Fine-tuned</td></tr>
+                    <tr><td><span class="mark">✓</span>Q-RAG</td><td>0.78</td><td>0.57</td><td>0.55</td><td>0.41</td></tr>
+                    <tr><td><span class="mark">◦</span>Beam-Retriever</td><td>0.86</td><td>0.69</td><td>0.59</td><td>0.43</td></tr>
+                    <tr class="ours"><td>S²LMR</td><td>0.83</td><td>0.67</td><td>0.56</td><td>0.42</td></tr>
+                    <tr><td class="group" colspan="5">Zero-shot</td></tr>
+                    <tr><td><span class="mark">◦</span>Multi-step RAG</td><td>0.51</td><td>0.30</td><td>0.40</td><td>0.27</td></tr>
+                    <tr><td><span class="mark">◦</span>GraphReader</td><td>–</td><td>–</td><td>0.40</td><td>0.20</td></tr>
+                    <tr><td><span class="mark">◦</span>Single-step RAG</td><td>–</td><td>–</td><td>0.28</td><td>0.17</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="note">All methods retrieve K = |gold| paragraphs; answers by QwQ-32B on the full dev set.</p>
+            </div>
+            <div class="block">
+              <div class="tablewrap">
+                <table>
+                  <thead><tr><th>Under Q-RAG’s protocol</th><th>Fact F1</th><th>Fact EM</th><th>Ans F1</th><th>Ans EM</th></tr></thead>
+                  <tbody>
+                    <tr><td class="group" colspan="5">Up to 4 picks, stop once all gold found</td></tr>
+                    <tr><td>Q-RAG (released)</td><td>0.81</td><td>0.72</td><td>0.60</td><td>0.45</td></tr>
+                    <tr class="ours"><td>S²LMR</td><td>0.86</td><td>0.77</td><td>0.62</td><td>0.47</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="note">Q-RAG’s own evaluation protocol: up to 4 picks, and an episode ends once all gold facts are retrieved. Q-RAG uses the authors’ released checkpoint.</p>
+            </div>
+          </div>
+          <p class="takeaway">Under either retrieval protocol, S²LMR is ahead of Q-RAG on all four metrics.</p>
+        </div>
+      </div>
+
+      <div class="block" data-tabs>
+        <h3>In-depth analysis</h3>
+        <div class="tabs" role="tablist" aria-label="In-depth analysis">
+          <button role="tab" id="tab-ablation" aria-controls="p-ablation" aria-selected="true">Ablation</button>
+          <button role="tab" id="tab-cost" aria-controls="p-cost" aria-selected="false">Training cost</button>
+          <button role="tab" id="tab-stability" aria-controls="p-stability" aria-selected="false">Stability</button>
+          <button role="tab" id="tab-supervision" aria-controls="p-supervision" aria-selected="false">Weaker supervision</button>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-ablation" aria-labelledby="tab-ablation">
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Variant (BabiLong QA3)</th><th>Fact EM</th><th>ΔEM</th></tr></thead>
+              <tbody>
+                <tr class="ours"><td>S²LMR (full)</td><td>0.99</td><td>–</td></tr>
+                <tr><td>− Issue 1: in-batch instead of same-context negatives</td><td>0.28</td><td>−0.71</td></tr>
+                <tr><td>− Issue 2: beam-expanded instead of teacher-forced hops (B=2)</td><td>0.95</td><td>−0.04</td></tr>
+                <tr><td>− Issue 3: no chunk-axis positional encoding</td><td>0.11</td><td>−0.89</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row n3">
+            <figure>
+              <div class="mat fit"><img src="static/images/abl_negatives.png" alt="Fact EM on QA3 falls from 0.99 to 0.28 as the fraction of in-batch negatives grows from 0 to 1."></div>
+              <figcaption><b>(a) Negatives.</b> Fact EM as in-batch negatives replace same-context ones.</figcaption>
+            </figure>
+            <figure>
+              <div class="mat fit"><img src="static/images/abl_teacher_forcing.png" alt="Fact EM versus evaluation context length for teacher-forced per-hop supervision and beam-expanded supervision."></div>
+              <figcaption><b>(b) Prefixes.</b> Teacher-forced vs beam-expanded supervision as the context grows.</figcaption>
+            </figure>
+            <figure>
+              <div class="mat fit"><img src="static/images/abl_position.png" alt="Fact EM versus evaluation context length with chunk-axis RoPE, static RoPE and no positional encoding."></div>
+              <figcaption><b>(c) Positions.</b> Chunk-axis vs static vs no positions beyond the 2K training length.</figcaption>
+            </figure>
+          </div>
+          <p class="takeaway">Each fix matters; together they account for the gap between a vanilla supervised bi-encoder and S²LMR.</p>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-cost" aria-labelledby="tab-cost" hidden>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>BabiLong QA3 · one A6000</th><th>Train (h)</th><th>1K</th><th>32K</th><th>128K</th><th>1M</th><th>10M</th></tr></thead>
+              <tbody>
+                <tr><td class="group" colspan="7">Retrieval only, s / sample (+0.44 s for the Qwen3-4B answer)</td></tr>
+                <tr class="ours"><td>S²LMR</td><td>2.25</td><td>0.20</td><td>1.00</td><td>3.20</td><td>27.8</td><td>279</td></tr>
+                <tr><td>Q-RAG</td><td>54.4</td><td>0.20</td><td>1.10</td><td>3.42</td><td>29.0</td><td>318</td></tr>
+                <tr><td>Beam Retriever</td><td>~450</td><td>1.2</td><td>39</td><td>155</td><td>~1200</td><td>~12000</td></tr>
+                <tr><td class="group" colspan="7">End-to-end fine-tuned, s / sample</td></tr>
+                <tr><td>RMT-137M</td><td>~20</td><td>0.21</td><td>0.90</td><td>3.15</td><td>24.5</td><td>253</td></tr>
+                <tr><td>Llama3-8B + RAG</td><td>&gt;40</td><td>0.65</td><td>0.75</td><td>1.23</td><td>7.82</td><td>64.8</td></tr>
+                <tr><td>Mamba-130M</td><td>&gt;400</td><td>4.21</td><td>81.8</td><td>OOM</td><td>OOM</td><td>OOM</td></tr>
+                <tr><td class="group" colspan="7">End-to-end zero-shot, s / sample</td></tr>
+                <tr><td>Mamba-2.8B</td><td>0</td><td>8.81</td><td>133</td><td>OOM</td><td>OOM</td><td>OOM</td></tr>
+                <tr><td>Llama-3.1-8B</td><td>0</td><td>0.61</td><td>11.9</td><td>49</td><td>limit</td><td>limit</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="note">Q-RAG: full schedule of its released configuration. OOM: out of memory; limit: exceeds the model’s context length.</p>
+          <p class="takeaway">At the same learning rate, S²LMR reaches its peak in about 1.4 GPU hours, against about 3 for Q-RAG, and retrieval is as fast as Q-RAG’s at every length.</p>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-stability" aria-labelledby="tab-stability" hidden>
+          <div class="row n2">
+            <figure>
+              <div class="mat fit" style="--ar:1.652"><img src="static/images/lr_range.png" alt="Peak EM versus learning rate for S²LMR and Q-RAG; S²LMR is stable over about 100x, Q-RAG over about 8x."></div>
+              <figcaption><b>Learning rate.</b> Shaded bands mark each method’s stable range; × marks Q-function collapse.</figcaption>
+            </figure>
+            <figure>
+              <div class="mat fit" style="--ar:1.652"><img src="static/images/batch_range.png" alt="Peak EM versus effective batch size for S²LMR and Q-RAG."></div>
+              <figcaption><b>Batch size.</b> Peak EM across effective batch sizes from 16 to 256.</figcaption>
+            </figure>
+          </div>
+          <p class="takeaway">S²LMR stays near peak over about 100× in learning rate and 16× in batch size; Q-RAG over about 8× and 4×.</p>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-supervision" aria-labelledby="tab-supervision" hidden>
+          <div class="row n2">
+            <div class="block">
+              <div class="tablewrap">
+                <table>
+                  <thead><tr><th>Unknown K (MuSiQue)</th><th>Fact EM</th><th>#picks</th></tr></thead>
+                  <tbody>
+                    <tr><td>Known K = |gold|</td><td>0.67</td><td>2.65</td></tr>
+                    <tr><td>Fixed T = 2 / 3 / 4</td><td>0.39 / 0.65 / 0.77</td><td>2 / 3 / 4</td></tr>
+                    <tr><td>Score threshold</td><td>0.63</td><td>2.60</td></tr>
+                    <tr class="ours"><td>Learned stop</td><td>0.65</td><td>2.70</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="note">The trained retriever is fixed; stopping thresholds are calibrated with 2-fold cross-validation on the dev set.</p>
+            </div>
+            <div class="block">
+              <div class="tablewrap">
+                <table>
+                  <thead><tr><th>Cross-dataset</th><th>→ MuSiQue</th><th>→ HotpotQA</th></tr></thead>
+                  <tbody>
+                    <tr><td>Q-RAG</td><td>0.55</td><td>0.68</td></tr>
+                    <tr><td>S²LMR</td><td>0.54</td><td>0.76</td></tr>
+                    <tr class="ours"><td>S²LMR, order-agnostic</td><td>0.60</td><td>0.77</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="note">Fact EM when trained on the other dataset, evaluated with Q-RAG’s protocol. Order-agnostic: a soft minimum of the loss over all orderings of the gold set, so no hop order is needed.</p>
+            </div>
+          </div>
+          <p class="takeaway">Gold hop order and a known K are not required: a learned stop recovers most of the known-K Fact EM, order-agnostic training transfers best across datasets, and training on LLM pseudo-labels derived from the answer alone reaches 0.88 Fact EM on HotpotQA, against 0.90 with gold labels.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="citation">
+    <div class="wide">
+      <h2>Citation</h2>
+      <div class="bibhead"><span class="label">BibTeX</span><button class="copy" id="copyBib" type="button">Copy</button></div>
+      <pre class="bib" id="bib">@article{hu2026s2lmr,
+  title   = {{S$^2$LMR}: Supervised Sequential Long-Context Multi-Step Retriever},
+  author  = {Hu, Qiang and Ji, Kaiyi},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</pre>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wide">
+    <span>University at Buffalo</span>
+    <a href="#top">Back to top ↑</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-tabs]'), function (box) {
+    var tabs = Array.prototype.slice.call(box.querySelectorAll('.tabs button'));
+    function show(btn) {
+      tabs.forEach(function (b) {
+        var on = b === btn;
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+        document.getElementById(b.getAttribute('aria-controls')).hidden = !on;
+      });
+    }
+    tabs.forEach(function (b, k) {
+      b.addEventListener('click', function () { show(b); });
+      b.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          var nb = tabs[(k + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+          nb.focus(); show(nb);
+        }
+      });
+    });
+  });
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.bar a[href^="#"]:not(.brand)'));
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) links.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id); });
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    links.forEach(function (a) { var s = document.querySelector(a.getAttribute('href')); if (s) io.observe(s); });
+  }
+  var btn = document.getElementById('copyBib'), pre = document.getElementById('bib');
+  btn.addEventListener('click', function () {
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    var fallback = function () { var s = window.getSelection(), r = document.createRange(); r.selectNodeContents(pre); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Selected'; };
+    try { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } catch (e) { fallback(); }
+  });
+})();
+</script>
+
+</body>
+</html>
