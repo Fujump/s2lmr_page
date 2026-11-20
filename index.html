@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>S²LMR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
 <style>
 /* Layout: one centered 60rem column shared by text, figures and tables (equal margins on both sides);
    centered title block on top, sticky section bar. */
@@ -114,14 +114,6 @@ figcaption b { color: var(--ink); font-weight: 600; }
 .row.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 800px) { .row.n2, .row.n3 { grid-template-columns: 1fr; } }
 
-/* method steps */
-.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; list-style: none; padding: 0; margin: 0; counter-reset: step; }
-.steps li { counter-increment: step; display: grid; gap: 0.35rem; align-content: start; }
-.steps li::before { content: counter(step); font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent);
-  border: 1px solid var(--accent); border-radius: 999px; width: 1.7rem; height: 1.7rem; display: grid; place-items: center; }
-.steps h3 { font-size: 1.05rem; }
-.steps p { font-size: 0.95rem; color: var(--muted); }
-@media (max-width: 800px) { .steps { grid-template-columns: 1fr; } }
 .eq { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0.9rem 1rem; overflow-x: auto; }
 .eq math { font-size: 1.12em; }
 
@@ -156,6 +148,95 @@ pre.bib { background: var(--surface); border: 1px solid var(--line); border-radi
 .copy { font: inherit; font-size: 0.85rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; }
 footer { border-top: 1px solid var(--line); padding-block: 2rem 3rem; font-size: 0.85rem; color: var(--muted); }
 footer .wide { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+
+/* interactive overview (method) */
+:root {
+  --d-box: #ffffff; --d-ret: #3c9a4c; --d-ret-t: #2f6e39; --d-retfill: #e8f6e8;
+  --d-env: #4f8bc8; --d-env-t: #3b5f8c; --d-envfill: #e4ecfa;
+  --d-chunk: #ffebb4; --d-chunk-e: #c38c32; --d-pick: #bee1be; --d-pick-e: #3ca050;
+  --d-q: #ffd7e1; --d-q-e: #d75a8c; --d-st: #e6e6e6; --d-st-e: #7d7d7d;
+  --d-rope: #fff0c8; --d-rope-e: #c8911e; --d-ans: #d7ebfa;
+  --d-sh: #3f8a4c; --d-tr: #286eb4; --d-if: #d9711a; --d-mut: #5b6670;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --d-box: #16212a; --d-ret: #5cbf6b; --d-ret-t: #8fd99a; --d-retfill: #142a1a;
+    --d-env: #6aa6e0; --d-env-t: #9cc4ee; --d-envfill: #15233a;
+    --d-chunk: #3b3118; --d-chunk-e: #d6a24a; --d-pick: #1f4528; --d-pick-e: #66c477;
+    --d-q: #4a2131; --d-q-e: #e57aa6; --d-st: #2a3540; --d-st-e: #8c9aa6;
+    --d-rope: #3b3118; --d-rope-e: #d6a24a; --d-ans: #1a3048;
+    --d-sh: #66c477; --d-tr: #5fa3e8; --d-if: #f0954a; --d-mut: #a2b2bf;
+  }
+}
+:root[data-theme="dark"] {
+  --d-box: #16212a; --d-ret: #5cbf6b; --d-ret-t: #8fd99a; --d-retfill: #142a1a;
+  --d-env: #6aa6e0; --d-env-t: #9cc4ee; --d-envfill: #15233a;
+  --d-chunk: #3b3118; --d-chunk-e: #d6a24a; --d-pick: #1f4528; --d-pick-e: #66c477;
+  --d-q: #4a2131; --d-q-e: #e57aa6; --d-st: #2a3540; --d-st-e: #8c9aa6;
+  --d-rope: #3b3118; --d-rope-e: #d6a24a; --d-ans: #1a3048;
+  --d-sh: #66c477; --d-tr: #5fa3e8; --d-if: #f0954a; --d-mut: #a2b2bf;
+}
+.ovf-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.ovf-bar button { font: inherit; font-size: 0.86rem; cursor: pointer; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; gap: 0.4rem; }
+.ovf-play { border-color: var(--ink) !important; font-weight: 500; }
+.ovf-play:hover { background: var(--ink) !important; color: var(--bg) !important; }
+.ovf-play svg { width: 0.8em; height: 0.8em; fill: currentColor; }
+.ovf-play .i-pause, .ovf-play[aria-pressed="true"] .i-play { display: none; }
+.ovf-play[aria-pressed="true"] .i-pause { display: inline; }
+.ovf-steps { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.ovf-steps button { position: relative; overflow: hidden; font-family: var(--font-mono); font-size: 0.78rem; }
+.ovf-steps button span { font-family: var(--font-body); font-size: 0.84rem; }
+.ovf-steps button::before { content: ""; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--k); flex: none; }
+.ovf-steps .k-sh { --k: var(--d-sh); } .ovf-steps .k-tr { --k: var(--d-tr); } .ovf-steps .k-if { --k: var(--d-if); }
+.ovf-bar button[aria-pressed="true"] { border-color: var(--k, var(--accent)); box-shadow: inset 0 0 0 1px var(--k, var(--accent)); font-weight: 600; }
+.ovf-steps button::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: var(--k); }
+.ovf.playing .ovf-steps button[aria-pressed="true"]::after { animation: ovf-prog var(--dwell, 5.5s) linear forwards; }
+@keyframes ovf-prog { to { width: 100%; } }
+.ovf-steps .ovf-full { font-family: var(--font-body); font-size: 0.84rem; }
+.ovf-steps .ovf-full::before { display: none; }
+@media (max-width: 800px) { .ovf-steps button span { display: none; } .ovf-steps button { padding-inline: 0.55rem; } }
+.ovf-canvas { background: var(--d-box); border: 1px solid var(--line); border-radius: 6px; padding: 0.5rem; overflow-x: auto; }
+.ovf-svg { display: block; width: 100%; min-width: 40rem; height: auto; font-family: var(--font-body); fill: var(--ink); }
+.ovf-svg .m { font-family: "STIX Two Text", "Times New Roman", serif; }
+.ovf-svg .b { font-weight: 600; } .ovf-svg .i { font-style: italic; }
+.ovf-svg rect { stroke-width: 1.6; }
+.ovf-svg .ret-bg { fill: var(--d-retfill); stroke: var(--d-ret); stroke-width: 2.4; }
+.ovf-svg .env-bg { fill: var(--d-envfill); stroke: var(--d-env); stroke-width: 2.4; }
+.ovf-svg .ret-t { fill: var(--d-ret-t); } .ovf-svg .env-t { fill: var(--d-env-t); }
+.ovf-svg .tr-t { fill: var(--d-tr); } .ovf-svg .if-t { fill: var(--d-if); } .ovf-svg .mut { fill: var(--d-mut); }
+.ovf-svg .box { fill: var(--d-box); } .ovf-svg .enc { stroke: var(--d-ret); } .ovf-svg .env-box { stroke: var(--d-env); }
+.ovf-svg .strip { fill: var(--d-chunk); fill-opacity: 0.3; stroke: var(--d-chunk-e); stroke-opacity: 0.5; stroke-dasharray: 5 4; }
+.ovf-svg .chunk { fill: var(--d-chunk); stroke: var(--d-chunk-e); }
+.ovf-svg .pick { fill: var(--d-pick); stroke: var(--d-pick-e); stroke-width: 2.4; }
+.ovf-svg .qb { fill: var(--d-q); stroke: var(--d-q-e); } .ovf-svg .cb { fill: var(--d-st); stroke: var(--d-st-e); }
+.ovf-svg .rope { fill: var(--d-rope); stroke: var(--d-rope-e); } .ovf-svg .ans { fill: var(--d-ans); stroke: var(--d-env); }
+.ovf-svg .legend { fill: var(--d-box); stroke: var(--line); stroke-width: 1; }
+.ovf-svg .arr { fill: none; } .ovf-svg .arr .ln { fill: none; stroke: currentColor; stroke-width: 2.6; }
+.ovf-svg .arr .hd { fill: currentColor; stroke: none; }
+.ovf-svg .arr.sh { color: var(--d-sh); } .ovf-svg .arr.sh .ln { stroke-width: 1.8; }
+.ovf-svg .arr.thin { opacity: 0.6; } .ovf-svg .arr.thin .ln { stroke-width: 1.2; }
+.ovf-svg .arr.shw { color: var(--d-mut); opacity: 0.55; } .ovf-svg .arr.shw .ln { stroke-dasharray: 3 3.5; stroke-width: 2.4; }
+.ovf-svg .arr.tr { color: var(--d-tr); } .ovf-svg .arr.if { color: var(--d-if); }
+.ovf-svg .arr.dash .ln { stroke-dasharray: 8 6; }
+.ovf-svg .dot.tr { fill: var(--d-tr); } .ovf-svg .dot.if { fill: var(--d-if); }
+.ovf-svg .g { transition: opacity 0.45s ease; }
+.ovf-canvas:not([data-step="0"]) .g:not(.on):not(.fr) { opacity: 0.13; }
+.ovf-canvas:not([data-step="0"]) .g.fr:not(.lg) { opacity: 0.55; }
+.ovf-canvas .g.on.go .arr:not(.dash):not(.shw) .ln { stroke-dasharray: 1 1; animation: ovf-draw 0.8s ease-out 0.15s both; }
+.ovf-canvas .g.on.go .arr:not(.dash):not(.shw) .hd { animation: ovf-fade 0.2s ease-out 0.85s both; }
+.ovf-canvas .g.on.go .arr.dash .ln { animation: ovf-march 1s linear infinite; }
+@keyframes ovf-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes ovf-fade { from { opacity: 0; } }
+@keyframes ovf-march { to { stroke-dashoffset: -28; } }
+@media (prefers-reduced-motion: reduce) {
+  .ovf-svg .g { transition: none; }
+  .ovf-canvas .g.on.go .arr .ln, .ovf-canvas .g.on.go .arr .hd { animation: none !important; }
+}
+.ovf-cap { display: block; min-height: 3.3em; font-size: 1rem; line-height: 1.6; }
+.ovf-tag { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--k, var(--muted)); margin-right: 0.4rem; }
+.ovf-tag:empty { display: none; }
+.ovf-png { font: inherit; font-size: 0.86rem; justify-self: start; background: none; border: none; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 </style>
 <style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
@@ -260,19 +341,48 @@ footer .wide { display: flex; flex-wrap: wrap; justify-content: space-between; g
     <div class="wide">
       <h2>Method</h2>
       <p class="lead">One shared encoder, supervised one hop at a time</p>
-      <figure>
-        <div class="mat"><img src="static/images/overview.png" alt="S²LMR overview: a shared encoder embeds the query state and the cached chunks of a long context; per-hop InfoNCE over all same-context chunks with the gold prefix during training, greedy argmax at inference."></div>
-        <figcaption><b>Overview.</b> Training (blue) supervises each hop with the gold next chunk; inference (orange) appends the highest-scoring chunk and moves to the next hop.</figcaption>
+      <figure class="ovf" id="ovf">
+        <div class="ovf-bar">
+          <button type="button" class="ovf-play" id="ovf-play" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="i-play" d="M4 2.5v11l9-5.5z"/><path class="i-pause" d="M4 2.5h3v11H4zM9 2.5h3v11H9z"/></svg><span>Play walkthrough</span></button>
+          <div class="ovf-steps" role="group" aria-label="Walkthrough steps">
+            <button type="button" data-step="1" class="k-sh">1<span> Chunks</span></button>
+            <button type="button" data-step="2" class="k-sh">2<span> State</span></button>
+            <button type="button" data-step="3" class="k-sh">3<span> Score</span></button>
+            <button type="button" data-step="4" class="k-tr">4<span> InfoNCE</span></button>
+            <button type="button" data-step="5" class="k-tr">5<span> Teacher forcing</span></button>
+            <button type="button" data-step="6" class="k-if">6<span> Inference</span></button>
+            <button type="button" class="ovf-full" data-step="0" aria-pressed="true">Full<span> diagram</span></button>
+          </div>
+        </div>
+        <div class="ovf-canvas" data-step="0">
+<!-- overview-svg:start -->
+<svg class="ovf-svg" viewBox="0 0 1280 690" role="img" aria-labelledby="ovf-title"><title id="ovf-title">S²LMR overview: a shared encoder embeds the hop state and the cached chunks of a long document; training applies per-hop InfoNCE with the gold chunk appended by teacher forcing, inference appends the top-scoring chunk.</title><g class="g fr"><rect x="217" y="104" width="1040" height="283" rx="10" class="ret-bg"/><text x="225" y="94" font-size="20" text-anchor="start" class="ret-t"><tspan class="b">S²LMR</tspan></text><rect x="70" y="497" width="1185" height="176" rx="10" class="env-bg"/><text x="78" y="486" font-size="19" text-anchor="start" class="env-t"><tspan class="b">Training Supervision</tspan></text></g>
+<g class="g" data-s="1 4"><rect x="217" y="373" width="460" height="89" rx="6" class="strip"/><rect x="229" y="381" width="107" height="72" rx="3" class="chunk"/><text x="282.5" y="401" font-size="16" text-anchor="middle"><tspan class="m i">c</tspan><tspan class="m" font-size="11.2" dy="4.5">2</tspan></text><text x="282.5" y="421" font-size="14" text-anchor="middle"><tspan>...bought at</tspan></text><text x="282.5" y="442" font-size="14" text-anchor="middle"><tspan>pharmacy...</tspan></text><rect x="343" y="381" width="129" height="72" rx="3" class="pick"/><text x="407.5" y="401" font-size="16" text-anchor="middle"><tspan class="m i">c</tspan><tspan class="m i" font-size="11.2" dy="4.5">i</tspan><tspan class="m" font-size="7.8" dy="3.1">3</tspan><tspan class="m" font-size="11" dy="-6.9" dx="-3.9">⋆</tspan></text><text x="407.5" y="421" font-size="14" text-anchor="middle"><tspan>...outside,</tspan></text><text x="407.5" y="442" font-size="14" text-anchor="middle"><tspan>keys missing...</tspan></text><rect x="480" y="381" width="126" height="72" rx="3" class="chunk"/><text x="543.0" y="401" font-size="16" text-anchor="middle"><tspan class="m i">c</tspan><tspan class="m" font-size="11.2" dy="4.5">5</tspan></text><text x="543.0" y="421" font-size="14" text-anchor="middle"><tspan>...overnight at</tspan></text><text x="543.0" y="442" font-size="14" text-anchor="middle"><tspan>neighbor&#x27;s...</tspan></text><text x="640" y="424" font-size="24" text-anchor="middle" class="mut"><tspan>⋯</tspan></text><text x="690" y="412" font-size="16" text-anchor="start" class="mut"><tspan class="b">Long-Context</tspan></text><text x="690" y="433" font-size="16" text-anchor="start" class="mut"><tspan class="b">Document</tspan></text></g>
+<g class="g" data-s="1"><g class="arr sh thin"><path class="ln" d="M283 379 L283 365" pathLength="1"/><path class="hd" d="M283.0 356.0 L288.5 367.0 L283.0 364.5 L277.5 367.0Z"/></g><g class="arr sh thin"><path class="ln" d="M408 379 L408 365" pathLength="1"/><path class="hd" d="M408.0 356.0 L413.5 367.0 L408.0 364.5 L402.5 367.0Z"/></g><g class="arr sh thin"><path class="ln" d="M543 379 L543 365" pathLength="1"/><path class="hd" d="M543.0 356.0 L548.5 367.0 L543.0 364.5 L537.5 367.0Z"/></g></g>
+<g class="g" data-s="1 3"><rect x="238" y="262" width="325" height="91" rx="4" class="box enc"/><text x="400.5" y="300" font-size="20" text-anchor="middle"><tspan class="b">Chunk Encoder</tspan><tspan> </tspan><tspan class="m i">f</tspan><tspan class="m i" font-size="14" dy="5.6">θ</tspan><tspan class="m" dy="-5.6">(·; </tspan><tspan class="m i">a</tspan><tspan class="m">)</tspan></text><text x="400.5" y="331" font-size="16" text-anchor="middle"><tspan class="i">encoded once, cached</tspan></text></g>
+<g class="g" data-s="2 3"><rect x="238" y="138" width="325" height="90" rx="4" class="box enc"/><text x="400.5" y="176" font-size="20" text-anchor="middle"><tspan class="b">Query Encoder</tspan><tspan> </tspan><tspan class="m i">f</tspan><tspan class="m i" font-size="14" dy="5.6">θ</tspan><tspan class="m" dy="-5.6">(·; </tspan><tspan class="m i">q</tspan><tspan class="m">)</tspan></text><text x="400.5" y="207" font-size="16" text-anchor="middle"><tspan class="i">recomputed per hop</tspan></text></g>
+<g class="g" data-s="2"><g class="arr shw"><path class="ln" d="M543 240 L543 252"/><path class="hd" d="M543.0 261.0 L537.5 250.0 L543.0 252.5 L548.5 250.0Z"/><path class="hd" d="M543.0 231.0 L548.5 242.0 L543.0 239.5 L537.5 242.0Z"/></g><text x="572" y="243" font-size="13" text-anchor="start" class="mut"><tspan class="i">shared</tspan></text><text x="572" y="261" font-size="13" text-anchor="start" class="mut"><tspan class="i">weights </tspan><tspan class="m i">θ</tspan></text></g>
+<g class="g" data-s="2 5 6"><text x="22" y="191" font-size="21" text-anchor="start" class="ret-t"><tspan class="m i">s</tspan><tspan class="m i" font-size="14.7" dy="5.9">t</tspan></text><text x="56" y="190" font-size="18" text-anchor="start" class="ret-t"><tspan>=</tspan></text><rect x="80" y="163" width="30" height="42" rx="3" class="qb"/><text x="95.0" y="190" font-size="17" text-anchor="middle"><tspan class="m i">q</tspan></text><rect x="114" y="163" width="42" height="42" rx="3" class="cb"/><text x="135.0" y="190" font-size="17" text-anchor="middle"><tspan class="m i">c</tspan><tspan class="m" font-size="11.9" dy="-7.1">(1)</tspan></text><rect x="160" y="163" width="42" height="42" rx="3" class="cb"/><text x="181.0" y="190" font-size="17" text-anchor="middle"><tspan class="m i">c</tspan><tspan class="m" font-size="11.9" dy="-7.1">(2)</tspan></text><g class="arr sh"><path class="ln" d="M206 184 L228 184" pathLength="1"/><path class="hd" d="M237.0 184.0 L226.0 189.5 L228.5 184.0 L226.0 178.5Z"/></g></g>
+<g class="g" data-s="3"><rect x="610" y="262" width="232" height="91" rx="4" class="rope"/><text x="726" y="300" font-size="20" text-anchor="middle"><tspan class="b">Chunk-axis RoPE</tspan></text><text x="726" y="331" font-size="16" text-anchor="middle"><tspan class="i">re-rotated per hop</tspan></text><g class="arr sh"><path class="ln" d="M564 183 L884 183 L884 224" pathLength="1"/><path class="hd" d="M884.0 233.0 L878.5 222.0 L884.0 224.5 L889.5 222.0Z"/></g><g class="arr sh"><path class="ln" d="M564 307 L600 307" pathLength="1"/><path class="hd" d="M609.0 307.0 L598.0 312.5 L600.5 307.0 L598.0 301.5Z"/></g><g class="arr sh"><path class="ln" d="M843 307 L884 307 L884 270" pathLength="1"/><path class="hd" d="M884.0 261.0 L889.5 272.0 L884.0 269.5 L878.5 272.0Z"/></g><text x="884" y="255" font-size="28" text-anchor="middle" class="ret-t"><tspan>×</tspan></text><g class="arr sh"><path class="ln" d="M898 246 L906 246" pathLength="1"/><path class="hd" d="M915.0 246.0 L904.0 251.5 L906.5 246.0 L904.0 240.5Z"/></g></g>
+<g class="g" data-s="3 4 6"><text x="990" y="237" font-size="24" text-anchor="middle" class="ret-t"><tspan class="b">scores</tspan></text><text x="986" y="265" font-size="20" text-anchor="middle" class="ret-t"><tspan class="m i">s</tspan><tspan class="m" font-size="14" dy="5.6">1</tspan><tspan class="m" dy="-5.6">, …, </tspan><tspan class="m i">s</tspan><tspan class="m i" font-size="14" dy="5.6">N</tspan></text></g>
+<g class="g" data-s="4"><g class="arr tr"><path class="ln" d="M991 287 L991 507" pathLength="1"/><path class="hd" d="M991.0 516.0 L985.5 505.0 L991.0 507.5 L996.5 505.0Z"/></g><text x="976" y="452" font-size="14" text-anchor="end" class="tr-t"><tspan class="i">InfoNCE over </tspan><tspan class="m i">𝒜</tspan><tspan class="m i" font-size="9.8" dy="3.9">t</tspan></text><rect x="912" y="520" width="277" height="130" rx="4" class="box env-box"/><text x="1050.5" y="558" font-size="20" text-anchor="middle"><tspan class="b">Per-hop InfoNCE</tspan><tspan> </tspan><tspan class="m">ℒ</tspan><tspan class="m i" font-size="14" dy="5.6">t</tspan></text><text x="1050.5" y="592" font-size="19" text-anchor="middle"><tspan class="m">ℒ</tspan><tspan class="m i" font-size="13.3" dy="5.3">S</tspan><tspan class="m" font-size="13.3">²</tspan><tspan class="m i" font-size="13.3">LMR</tspan><tspan class="m" dy="-5.3"> = (1/</tspan><tspan class="m i">K</tspan><tspan class="m">) Σ</tspan><tspan class="m i" font-size="13.3" dy="5.3">t</tspan><tspan class="m" dy="-5.3"> ℒ</tspan><tspan class="m i" font-size="13.3" dy="5.3">t</tspan></text><text x="1050.5" y="622" font-size="16" text-anchor="middle"><tspan class="i">averaged over </tspan><tspan class="m i">B</tspan><tspan class="i"> samples</tspan></text><g class="arr tr"><path class="ln" d="M803 587 L902 587" pathLength="1"/><path class="hd" d="M911.0 587.0 L900.0 592.5 L902.5 587.0 L900.0 581.5Z"/></g><text x="857" y="571" font-size="14" text-anchor="middle" class="tr-t"><tspan class="i">gold </tspan><tspan class="m i">i</tspan><tspan class="m i" font-size="9.8" dy="3.9">t</tspan><tspan class="m i" font-size="13.7" dy="-8.6" dx="-4.9">⋆</tspan></text></g>
+<g class="g" data-s="4 5"><rect x="530" y="540" width="272" height="91" rx="4" class="ans"/><text x="666" y="578" font-size="18" text-anchor="middle"><tspan class="b">Gold indices</tspan><tspan> </tspan><tspan class="m">(</tspan><tspan class="m i">i</tspan><tspan class="m" font-size="12.6" dy="5">1</tspan><tspan class="m" font-size="17.6" dy="-11" dx="-6.3">⋆</tspan><tspan class="m" dy="6">, </tspan><tspan class="m i">i</tspan><tspan class="m" font-size="12.6" dy="5">2</tspan><tspan class="m" font-size="17.6" dy="-11" dx="-6.3">⋆</tspan><tspan class="m" dy="6">, </tspan><tspan class="m i">i</tspan><tspan class="m" font-size="12.6" dy="5">3</tspan><tspan class="m" font-size="17.6" dy="-11" dx="-6.3">⋆</tspan><tspan class="m" dy="6">)</tspan></text><text x="666" y="607" font-size="16" text-anchor="middle"><tspan class="i">teacher-forced per hop</tspan></text></g>
+<g class="g" data-s="5"><rect x="92" y="515" width="321" height="142" rx="4" class="box env-box"/><text x="252.5" y="552" font-size="18" text-anchor="middle"><tspan class="b">Next-hop state</tspan><tspan> </tspan><tspan class="m i">s</tspan><tspan class="m i" font-size="12.6" dy="5">t</tspan><tspan class="m" font-size="12.6">+1</tspan></text><rect x="160" y="567" width="30" height="42" rx="3" class="qb"/><text x="175.0" y="594" font-size="17" text-anchor="middle"><tspan class="m i">q</tspan></text><rect x="200" y="567" width="43" height="42" rx="3" class="cb"/><text x="221.5" y="594" font-size="17" text-anchor="middle"><tspan class="m i">c</tspan><tspan class="m" font-size="11.9" dy="-7.1">(1)</tspan></text><rect x="252" y="567" width="43" height="42" rx="3" class="cb"/><text x="273.5" y="594" font-size="17" text-anchor="middle"><tspan class="m i">c</tspan><tspan class="m" font-size="11.9" dy="-7.1">(2)</tspan></text><rect x="303" y="567" width="44" height="42" rx="3" class="pick"/><text x="325.0" y="594" font-size="17" text-anchor="middle"><tspan class="m i">c</tspan><tspan class="m i" font-size="11.9" dy="4.8">i</tspan><tspan class="m i" font-size="8.3" dy="3.3">t</tspan><tspan class="m" font-size="11.7" dy="-7.3" dx="-4.2">⋆</tspan></text><text x="252.5" y="633" font-size="14" text-anchor="middle"><tspan class="i">gold </tspan><tspan class="m i">c</tspan><tspan class="m i" font-size="9.8" dy="3.9">i</tspan><tspan class="m i" font-size="6.9" dy="2.8">t</tspan><tspan class="m i" font-size="9.6" dy="-6.1" dx="-3.4">⋆</tspan><tspan class="i" dy="-0.6"> appended by teacher forcing</tspan></text><g class="arr tr"><path class="ln" d="M529 587 L423 587" pathLength="1"/><path class="hd" d="M414.0 587.0 L425.0 581.5 L422.5 587.0 L425.0 592.5Z"/></g><text x="472" y="571" font-size="14" text-anchor="middle" class="tr-t"><tspan class="i">append </tspan><tspan class="m i">c</tspan><tspan class="m i" font-size="9.8" dy="3.9">i</tspan><tspan class="m i" font-size="6.9" dy="2.8">t</tspan><tspan class="m i" font-size="9.6" dy="-6.1" dx="-3.4">⋆</tspan></text><g class="arr tr dash"><path class="ln" d="M91 587 L45 587 L45 216" id="ovf-loop-tr"/><path class="hd" d="M45.0 207.0 L50.5 218.0 L45.0 215.5 L39.5 218.0Z"/></g><text x="58" y="333" font-size="19" text-anchor="start" class="tr-t"><tspan class="b i">train</tspan></text><text x="58" y="358" font-size="19" text-anchor="start" class="tr-t"><tspan class="b">next hop </tspan><tspan class="m b i">t</tspan><tspan class="m b">+1</tspan></text></g>
+<g class="g" data-s="6"><text x="1100" y="232" font-size="17" text-anchor="middle" class="if-t"><tspan class="b i">argmax</tspan></text><g class="arr if"><path class="ln" d="M1071 247 L1089 247" pathLength="1"/><path class="hd" d="M1098.0 247.0 L1087.0 252.5 L1089.5 247.0 L1087.0 241.5Z"/></g><text x="1168" y="259" font-size="22" text-anchor="middle" class="if-t"><tspan class="m i">c</tspan><tspan class="m" font-size="15.4" dy="-9.2">(</tspan><tspan class="m i" font-size="15.4">t</tspan><tspan class="m" font-size="15.4">)</tspan><tspan class="m" dy="9.2"> = </tspan><tspan class="m i">c</tspan><tspan class="m i" font-size="15.4" dy="6.2">i</tspan><tspan class="m" font-size="10.8" dy="4.3">3</tspan><tspan class="m" font-size="15.1" dy="-9.5" dx="-5.4">⋆</tspan></text><g class="arr if dash"><path class="ln" d="M1168 228 L1168 63 L45 63 L45 152" id="ovf-loop-if"/><path class="hd" d="M45.0 161.0 L39.5 150.0 L45.0 152.5 L50.5 150.0Z"/></g><text x="740" y="40" font-size="20" text-anchor="middle" class="if-t"><tspan class="b i">infer</tspan><tspan>   </tspan><tspan class="b">next hop </tspan><tspan class="m b i">t</tspan><tspan class="m b">+1</tspan><tspan class="b">: append </tspan><tspan class="m b i">c</tspan><tspan class="m b" font-size="14" dy="-8.4">(</tspan><tspan class="m b i" font-size="14">t</tspan><tspan class="m b" font-size="14">)</tspan><tspan class="b" dy="8.4"> to </tspan><tspan class="m b i">s</tspan><tspan class="m b i" font-size="14" dy="5.6">t</tspan></text></g>
+<g class="g fr lg"><rect x="1085" y="402" width="141" height="84" rx="3" class="legend"/><g class="arr sh"><path class="ln" d="M1098 421 L1123 421" pathLength="1"/><path class="hd" d="M1132.0 421.0 L1121.0 426.5 L1123.5 421.0 L1121.0 415.5Z"/></g><text x="1144" y="426" font-size="14" text-anchor="start"><tspan>shared</tspan></text><g class="arr tr"><path class="ln" d="M1098 443 L1123 443" pathLength="1"/><path class="hd" d="M1132.0 443.0 L1121.0 448.5 L1123.5 443.0 L1121.0 437.5Z"/></g><text x="1144" y="448" font-size="14" text-anchor="start"><tspan>training</tspan></text><g class="arr if"><path class="ln" d="M1098 466 L1123 466" pathLength="1"/><path class="hd" d="M1132.0 466.0 L1121.0 471.5 L1123.5 466.0 L1121.0 460.5Z"/></g><text x="1144" y="471" font-size="14" text-anchor="start"><tspan>inference</tspan></text></g>
+<circle class="dot tr" r="7" opacity="0"><animateMotion id="ovf-loop-tr-m" dur="1.8s" begin="indefinite" fill="remove"><mpath href="#ovf-loop-tr"/></animateMotion><animate id="ovf-loop-tr-o" attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.85;1" dur="1.8s" begin="indefinite" fill="remove"/></circle>
+<circle class="dot if" r="7" opacity="0"><animateMotion id="ovf-loop-if-m" dur="1.8s" begin="indefinite" fill="remove"><mpath href="#ovf-loop-if"/></animateMotion><animate id="ovf-loop-if-o" attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.85;1" dur="1.8s" begin="indefinite" fill="remove"/></circle></svg>
+<!-- overview-svg:end -->
+        </div>
+        <figcaption class="ovf-cap" aria-live="polite"><span class="ovf-tag"></span><b class="ovf-h">Overview.</b> <span class="ovf-t">Training (blue) supervises each hop with the gold next chunk; inference (orange) appends the highest-scoring chunk and moves to the next hop.</span></figcaption>
+        <button type="button" class="ovf-png" id="ovf-png" aria-expanded="false" aria-controls="ovf-png-box">Show the paper figure</button>
+        <div class="mat" id="ovf-png-box" hidden><img src="static/images/overview.png" loading="lazy" alt="Figure 1 of the paper: the S²LMR overview as a static image."></div>
       </figure>
-      <ol class="steps">
-        <li><h3>Encode the context once</h3><p>Every chunk of the long context is embedded once by the shared encoder and cached for all hops.</p></li>
-        <li><h3>Build the state from gold evidence</h3><p>At hop t, the state s<sub>t</sub> holds the question and the gold chunks of the earlier hops, so no hop is trained on a wrong prefix.</p></li>
-        <li><h3>Contrast against the whole context</h3><p>The gold next chunk is scored against every remaining chunk of the same context, with one InfoNCE loss per hop.</p></li>
-      </ol>
+      <p>Each hop <i>t</i> gets its own InfoNCE term, and the <i>K</i> terms are averaged:</p>
       <div class="eq">
         <math display="block"><msub><mi>ℒ</mi><mi>t</mi></msub><mo>=</mo><mo>−</mo><mi>log</mi><mfrac><mrow><mi>exp</mi><mo>(</mo><mi>score</mi><mo>(</mo><msub><mi>s</mi><mi>t</mi></msub><mo>,</mo><msub><mi>c</mi><msubsup><mi>i</mi><mi>t</mi><mo>⋆</mo></msubsup></msub><mo>)</mo><mo>/</mo><mi>τ</mi><mo>)</mo></mrow><mrow><munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><msub><mi>𝒜</mi><mi>t</mi></msub></mrow></munder><mi>exp</mi><mo>(</mo><mi>score</mi><mo>(</mo><msub><mi>s</mi><mi>t</mi></msub><mo>,</mo><msub><mi>c</mi><mi>j</mi></msub><mo>)</mo><mo>/</mo><mi>τ</mi><mo>)</mo></mrow></mfrac><mo>,</mo><mspace width="1.2em"/><msub><mi>ℒ</mi><mrow><msup><mi>S</mi><mn>2</mn></msup><mi>LMR</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mi>K</mi></mfrac><munderover><mo>∑</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msub><mi>ℒ</mi><mi>t</mi></msub></math>
       </div>
-      <p>𝒜<sub>t</sub> is every chunk of the context not yet retrieved, so same-context chunks about the same entities are always in the denominator. All K hops get a direct gradient, with no rollouts, value networks or temporal-difference updates. At inference the gold prefix is replaced by the model’s own picks, and retrieval is greedy.</p>
+      <p>Here <i>c</i><sub><i>i</i><sub><i>t</i></sub><sup>⋆</sup></sub> is the gold chunk of hop <i>t</i> and 𝒜<sub><i>t</i></sub> is every chunk of the context not yet retrieved, so same-context chunks about the same entities are always in the denominator. All <i>K</i> hops get a direct gradient, with no rollouts, value networks or temporal-difference updates. At inference the gold prefix is replaced by the model’s own picks, and retrieval is greedy.</p>
     </div>
   </section>
 
@@ -564,6 +674,92 @@ footer .wide { display: flex; flex-wrap: wrap; justify-content: space-between; g
     var fallback = function () { var s = window.getSelection(), r = document.createRange(); r.selectNodeContents(pre); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Selected'; };
     try { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } catch (e) { fallback(); }
   });
+
+  // interactive overview walkthrough
+  (function () {
+    var fig = document.getElementById('ovf'); if (!fig) return;
+    var canvas = fig.querySelector('.ovf-canvas'), groups = canvas.querySelectorAll('.g[data-s]');
+    var chips = Array.prototype.slice.call(fig.querySelectorAll('[data-step]')).filter(function (b) { return b.tagName === 'BUTTON'; });
+    var play = document.getElementById('ovf-play'), playLbl = play.querySelector('span');
+    var tag = fig.querySelector('.ovf-tag'), h = fig.querySelector('.ovf-h'), t = fig.querySelector('.ovf-t');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var K = { sh: ['Shared', 'var(--d-sh)'], tr: ['Training', 'var(--d-tr)'], 'if': ['Inference', 'var(--d-if)'] };
+    var S = [
+      [null, 'Overview.', t.innerHTML],
+      ['sh', 'Encode the context once.', 'Every chunk of the long document is embedded once by the chunk encoder, and all hops reuse the cached embeddings.'],
+      ['sh', 'Encode the current state.', 'At hop <i>t</i>, the query encoder re-encodes the state <i>s</i><sub><i>t</i></sub>: the question <i>q</i> followed by the chunks retrieved so far, in document order. Both encoders share the weights <i>θ</i>.'],
+      ['sh', 'Score every chunk.', 'The cached chunk embeddings are re-rotated by chunk-axis RoPE according to the retrieval history, and each chunk is scored by its inner product with the state embedding, giving <i>s</i><sub>1</sub>, …, <i>s</i><sub><i>N</i></sub>.'],
+      ['tr', 'Per-hop InfoNCE.', 'The gold chunk <i>c</i><sub><i>i</i><sub><i>t</i></sub><sup>⋆</sup></sub> is contrasted against every remaining chunk 𝒜<sub><i>t</i></sub> of the same document. Losses are averaged over the <i>K</i> hops and the <i>B</i> samples.'],
+      ['tr', 'Teacher forcing.', 'The gold chunk, not the model’s own pick, is appended to form <i>s</i><sub><i>t</i>+1</sub>, so every hop is trained on a correct prefix.'],
+      ['if', 'Greedy inference.', 'At test time the highest-scoring chunk <i>c</i><sup>(<i>t</i>)</sup> is appended to <i>s</i><sub><i>t</i></sub>, and retrieval moves on to the next hop.']
+    ];
+    var pb = document.getElementById('ovf-png'), pbox = document.getElementById('ovf-png-box');
+    pb.addEventListener('click', function () {
+      var open = pbox.hidden; pbox.hidden = !open;
+      pb.setAttribute('aria-expanded', open ? 'true' : 'false');
+      pb.textContent = open ? 'Hide the paper figure' : 'Show the paper figure';
+    });
+    var DWELL = 5500, cur = 0, timer = null, dotTimer = null;
+    fig.style.setProperty('--dwell', DWELL / 1000 + 's');
+    function dot(id) {
+      if (reduce) return;
+      dotTimer = setTimeout(function () {
+        var m = document.getElementById(id + '-m'), o = document.getElementById(id + '-o');
+        try { m.beginElement(); o.beginElement(); } catch (e) {}
+      }, 600);
+    }
+    function go(n) {
+      cur = n; clearTimeout(dotTimer);
+      canvas.setAttribute('data-step', n);
+      Array.prototype.forEach.call(groups, function (g) {
+        var on = n > 0 && g.getAttribute('data-s').split(' ').indexOf(String(n)) >= 0;
+        g.classList.remove('go'); g.classList.toggle('on', on);
+        if (on) { void g.getBoundingClientRect(); g.classList.add('go'); }
+      });
+      chips.forEach(function (b) {
+        var on = +b.getAttribute('data-step') === n;
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      var s = S[n];
+      tag.textContent = s[0] ? 'Step ' + n + ' / 6 · ' + K[s[0]][0] : '';
+      fig.style.setProperty('--k', s[0] ? K[s[0]][1] : 'var(--muted)');
+      h.textContent = s[1]; t.innerHTML = s[2];
+      if (n === 5) dot('ovf-loop-tr'); if (n === 6) dot('ovf-loop-if');
+      if (canvas.scrollWidth > canvas.clientWidth + 4) {
+        var x0 = Infinity, x1 = -Infinity, cr = canvas.getBoundingClientRect();
+        Array.prototype.forEach.call(canvas.querySelectorAll(n ? '.g.on' : '.g'), function (g) {
+          var r = g.getBoundingClientRect(); x0 = Math.min(x0, r.left); x1 = Math.max(x1, r.right);
+        });
+        if (n === 0) x1 = x0;
+        var target = canvas.scrollLeft + (x0 + x1) / 2 - cr.left - canvas.clientWidth / 2;
+        if (n && x1 - x0 > canvas.clientWidth) target = canvas.scrollLeft + x0 - cr.left - 8;
+        canvas.scrollTo({ left: Math.max(0, target), behavior: reduce ? 'auto' : 'smooth' });
+      }
+    }
+    function stop() {
+      clearTimeout(timer); timer = null; fig.classList.remove('playing');
+      play.setAttribute('aria-pressed', 'false'); playLbl.textContent = cur ? 'Resume' : 'Play walkthrough';
+    }
+    function tick() {
+      timer = setTimeout(function () {
+        if (cur < 6) { go(cur + 1); tick(); } else { go(0); stop(); playLbl.textContent = 'Replay'; }
+      }, DWELL);
+    }
+    play.addEventListener('click', function () {
+      if (timer) { stop(); return; }
+      fig.classList.add('playing'); play.setAttribute('aria-pressed', 'true'); playLbl.textContent = 'Pause';
+      go(cur >= 1 && cur < 6 ? cur : 1); tick();
+    });
+    chips.forEach(function (b) {
+      b.addEventListener('click', function () { stop(); go(+b.getAttribute('data-step')); playLbl.textContent = cur ? 'Resume' : 'Play walkthrough'; });
+      b.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault(); stop();
+        var n = (cur + (e.key === 'ArrowRight' ? 1 : 6)) % 7; go(n);
+        chips.filter(function (c) { return +c.getAttribute('data-step') === n; })[0].focus();
+      });
+    });
+  })();
 })();
 </script>
 
